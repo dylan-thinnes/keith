@@ -1020,24 +1020,9 @@ int is_prime (int n) {
   return 1;
 }
 
-int len = 4;
-int tallies[10] = {0,0,0,0,0,0,0,0,0,0};
+int len = 1;
+int tallies[10] = {0,1,0,0,0,0,0,0,0,0};
 int prime_total = 0;
-
-void initialize (int n) {
-  prime_total = 0;
-  for (int ii = 0; ii < 10; ii++) {
-    tallies[ii] = 0;
-  }
-
-  char str[50];
-  len = sprintf(str, "%d", n);
-  //printf("%d %s\n", len, str);
-
-  for (int ii = 0; ii < len; ii++) {
-    tallies[str[ii] - 48]++;
-  }
-}
 
 void permute (int total, int power, int called_with_zero) {
   int anything_emitted = 0;
@@ -1056,79 +1041,129 @@ void permute (int total, int power, int called_with_zero) {
 
   if (!called_with_zero) {
     //printf("%d % 5d\n", anything_emitted, total);
-    if (is_prime(total)) prime_total++;
-  }
-}
-
-int get_prime_total (int n) {
-  initialize(n);
-  permute(0, 1, 1);
-  return prime_total;
-}
-
-int main () {
-  int best_so_far = -1;
-  for (int ii = 1; ii < 1000000; ii++) {
-    int total = get_prime_total(ii);
-    if (total > best_so_far) {
-      best_so_far = total;
-      printf("%d %d\n", ii, total);
+    if (is_prime(total)) {
+      //printf("prime candidate found: %d\n", total);
+      prime_total++;
     }
   }
 }
 
-/*
-TODO: construct numbers directly as digit counts instead of incrementing
-Table of progressions:
+int get_prime_total () {
+  prime_total = 0;
+  permute(0, 1, 1);
+  return prime_total;
+}
 
-{0,1,0,0,0,0,0,0,0,0}; 1
-{0,0,1,0,0,0,0,0,0,0}; 2
-{0,0,0,1,0,0,0,0,0,0}; 3
-...
-{1,1,0,0,0,0,0,0,0,0}; 10
-{0,2,0,0,0,0,0,0,0,0}; 11
-{0,1,1,0,0,0,0,0,0,0}; 12
-{0,1,0,1,0,0,0,0,0,0}; 13
-...
-{0,1,0,0,0,0,0,0,0,1}; 19
-{0,0,2,0,0,0,0,0,0,0}; 22
-{0,0,1,1,0,0,0,0,0,0}; 23
-{0,0,1,0,1,0,0,0,0,0}; 24
-...
-{0,0,1,0,0,0,0,0,0,1}; 29
-{0,0,0,2,0,0,0,0,0,0}; 33
-{0,0,0,1,1,0,0,0,0,0}; 34
-...
-{0,0,0,0,0,0,0,0,0,2}; 99
-{2,1,0,0,0,0,0,0,0,0}; 100
-{1,2,0,0,0,0,0,0,0,0}; 101
-{1,1,1,0,0,0,0,0,0,0}; 102
-{1,1,0,1,0,0,0,0,0,0}; 103
-...
-{1,1,0,0,0,0,0,0,0,1}; 109
-{0,3,0,0,0,0,0,0,0,0}; 111
-{0,2,1,0,0,0,0,0,0,0}; 112
-{0,2,0,1,0,0,0,0,0,0}; 113
-{0,2,0,0,1,0,0,0,0,0}; 114
-...
-{0,2,0,0,0,0,0,0,0,1}; 119
-{0,1,2,0,0,0,0,0,0,0}; 122
+void next_tally () {
+  if (tallies[9] == len) { // a
+    //printf("a ");
+    len += 1;
+    tallies[0] = tallies[9];
+    tallies[1] = 1;
+    tallies[9] = 0;
+    return;
+  } else if (tallies[0] == 0 && tallies[9] + 1 == len) { // b
+    //printf("b ");
+    // We know that tallies[1:8] contains a single value (i.e. is onehot)
+    for (int ii = 8; ii >= 1; ii--) {
+      if (tallies[ii]) {
+        tallies[ii]--;
+        tallies[0] = tallies[9];
+        tallies[9] = 0;
+        tallies[ii+1]++;
+        break;
+      }
+    }
+  } else if (tallies[0] > 0 && tallies[0] == len) { // e
+    //printf("e ");
+    printf("AHHHHH!\n");
+    exit(1);
+  } else if (tallies[0] > 0 && tallies[9] > 0 && tallies[0] + tallies[9] == len) { // f
+    //printf("f ");
+    tallies[0]--;
+    tallies[9]++;
+  } else if (tallies[0] > 0 && tallies[0] + tallies[9] + 1 == len) { // d
+    //printf("d ");
+    tallies[0]--;
+    // We know that tallies[1:8] contains a single value (i.e. is onehot)
+    for (int ii = 8; ii >= 1; ii--) {
+      if (tallies[ii]) {
+        //printf("%d %d %d\n", ii, tallies[ii], tallies[9]);
+        tallies[ii] = tallies[9] + 2;
+        //printf("%d %d %d\n", ii, tallies[ii], tallies[9]);
+        break;
+      }
+    }
+    tallies[9] = 0;
+  } else { // c
+    //printf("c ");
+    for (int ii = 8; ii >= 1; ii--) {
+      if (tallies[ii]) {
+        tallies[ii]--;
+        int nines = tallies[9];
+        tallies[9] = 0;
+        tallies[ii+1] += 1 + nines;
+        break;
+      }
+    }
+  }
+}
 
-......
-{0,1,0,0,0,0,0,0,0,2}; 199
-{2,0,1,0,0,0,0,0,0,0}; 200
+void print_seq () {
+  printf(" %d:", len);
+  for (int ii = 0; ii < 10; ii++) {
+    printf(" %d", tallies[ii]);
+  }
 
-......
-{0,2,0,0,0,0,0,0,0,2};
-{0,1,3,0,0,0,0,0,0,0};
+  printf(" : ");
 
-{0,1,0,4,0,0,0,0,0,2};
-{0,1,0,3,3,0,0,0,0,0};
+  int first_nonzero = 0;
+  for (int ii = 1; ii < 10; ii++) {
+    if (tallies[ii] > 0) {
+      printf("%d", ii);
+      first_nonzero = ii;
+      tallies[ii]--;
+      break;
+    }
+  }
+  for (int ii = 0; ii < tallies[0]; ii++) {
+    printf("0");
+  }
+  for (int ii = 1; ii < 10; ii++) {
+    for (int jj = 0; jj < tallies[ii]; jj++) {
+      printf("%d", ii);
+    }
+  }
+  if (first_nonzero > 0) {
+    tallies[first_nonzero]++;
+  }
+}
 
-{0,0,0,0,1,0,0,0,0,3}; 4999
-{3,0,0,0,0,1,0,0,0,0}; 5000
-
- 1199
-/1200
- 1222
-*/
+int main () {
+  /*
+  tallies[0] = 0;
+  tallies[1] = 1;
+  tallies[2] = 0;
+  tallies[3] = 1;
+  tallies[4] = 0;
+  tallies[5] = 0;
+  tallies[6] = 1;
+  tallies[7] = 0;
+  tallies[8] = 0;
+  tallies[9] = 0;
+  len = 3;
+  get_prime_total();
+  */
+  int best_so_far = -1;
+  int nth_tally = 0;
+  while (1) {
+    int total = get_prime_total();
+    if (total > best_so_far) {
+      best_so_far = total;
+      print_seq();
+      printf(": %d : %d\n", nth_tally, total);
+    }
+    next_tally();
+    nth_tally++;
+  }
+}
