@@ -1,6 +1,6 @@
 Implementations of simple finders for Keith Numbers and Primeval Numbers.
 
-For example, the Primeval numbers, along with the number of primes the decompose to, was calculated by primeval.c up t 10 digits:
+For example, the Primeval numbers, along with the number of primes they decompose to, was calculated by primeval.c up to 10 digits:
 ```
       number  primes
           2       1
@@ -78,4 +78,6 @@ For example, the Primeval numbers, along with the number of primes the decompose
  1001234579  123080
  1002334679  128922
  1002345679  170804
+ 1012345678: 181413
+ 1012345679: 272113
 ```
