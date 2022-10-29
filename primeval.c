@@ -1008,24 +1008,16 @@ int primes[10000] =
 // Binary search for prime numbers
 // Limits us to numbers under primes[8192] but oh well.
 int is_prime (int n) {
-  int possible = 8192 / 2 - 1;
-  int delta = 8192 / 4;
-  while (1) {
-    int candidate = primes[possible];
-    //printf("Trying %d %d %d\n", possible, candidate, delta);
-    if (candidate == n) return 1;
-    if (delta == 0) break;
-    if (candidate > n) {
-      possible -= delta;
-      delta = delta / 2;
-    }
-    if (candidate < n) {
-      possible += delta;
-      delta = delta / 2;
-    }
+  if (n <= 1) return 0;
+  int bound = floor(sqrt((double) n));
+  int ii = 0;
+  //printf("is_prime %d %d\n", bound, n);
+  while (primes[ii] <= bound) {
+    //printf("prime trying %d\n", primes[ii]);
+    if (n % primes[ii] == 0) return 0;
+    ii++;
   }
-
-  return 0;
+  return 1;
 }
 
 int len = 4;
