@@ -1011,9 +1011,7 @@ int is_prime (int n) {
   if (n <= 1) return 0;
   int bound = floor(sqrt((double) n));
   int ii = 0;
-  //printf("is_prime %d %d\n", bound, n);
   while (primes[ii] <= bound) {
-    //printf("prime trying %d\n", primes[ii]);
     if (n % primes[ii] == 0) return 0;
     ii++;
   }
@@ -1039,13 +1037,7 @@ void permute (int total, int power, int called_with_zero) {
     }
   }
 
-  if (!called_with_zero) {
-    //printf("%d % 5d\n", anything_emitted, total);
-    if (is_prime(total)) {
-      //printf("prime candidate found: %d\n", total);
-      prime_total++;
-    }
-  }
+  if (!called_with_zero && is_prime(total)) prime_total++;
 }
 
 int get_prime_total () {
@@ -1056,14 +1048,12 @@ int get_prime_total () {
 
 void next_tally () {
   if (tallies[9] == len) { // a
-    //printf("a ");
     len += 1;
     tallies[0] = tallies[9];
     tallies[1] = 1;
     tallies[9] = 0;
     return;
   } else if (tallies[0] == 0 && tallies[9] + 1 == len) { // b
-    //printf("b ");
     // We know that tallies[1:8] contains a single value (i.e. is onehot)
     for (int ii = 8; ii >= 1; ii--) {
       if (tallies[ii]) {
@@ -1075,28 +1065,22 @@ void next_tally () {
       }
     }
   } else if (tallies[0] > 0 && tallies[0] == len) { // e
-    //printf("e ");
-    printf("AHHHHH!\n");
+    printf("Invalid case found with all zeroes!\n");
     exit(1);
   } else if (tallies[0] > 0 && tallies[9] > 0 && tallies[0] + tallies[9] == len) { // f
-    //printf("f ");
     tallies[0]--;
     tallies[9]++;
   } else if (tallies[0] > 0 && tallies[0] + tallies[9] + 1 == len) { // d
-    //printf("d ");
     tallies[0]--;
     // We know that tallies[1:8] contains a single value (i.e. is onehot)
     for (int ii = 8; ii >= 1; ii--) {
       if (tallies[ii]) {
-        //printf("%d %d %d\n", ii, tallies[ii], tallies[9]);
         tallies[ii] = tallies[9] + 2;
-        //printf("%d %d %d\n", ii, tallies[ii], tallies[9]);
         break;
       }
     }
     tallies[9] = 0;
   } else { // c
-    //printf("c ");
     for (int ii = 8; ii >= 1; ii--) {
       if (tallies[ii]) {
         tallies[ii]--;
@@ -1140,20 +1124,6 @@ void print_seq () {
 }
 
 int main () {
-  /*
-  tallies[0] = 0;
-  tallies[1] = 1;
-  tallies[2] = 0;
-  tallies[3] = 1;
-  tallies[4] = 0;
-  tallies[5] = 0;
-  tallies[6] = 1;
-  tallies[7] = 0;
-  tallies[8] = 0;
-  tallies[9] = 0;
-  len = 3;
-  get_prime_total();
-  */
   int best_so_far = -1;
   int nth_tally = 0;
   while (1) {
