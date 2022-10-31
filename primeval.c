@@ -1020,29 +1020,42 @@ int is_prime (int n) {
 int len = 1;
 int tallies[10] = {0,1,0,0,0,0,0,0,0,0};
 int prime_total = 0;
+int permutation_lengths[20];
 
-void permute (int total, int power, int called_with_zero) {
+int permute (int length, /*int is_first, */int total, int power, int called_with_zero/*, int running_total*/) {
+  int tried = 0;
   int anything_emitted = 0;
 
   for (int ii = 9; ii >= 0; ii--) {
+    //if (tallies[ii] && (!is_first || ii != 0 && ii != 2 && ii != 5)) {
     if (tallies[ii]) {
       if (anything_emitted == 0 && ii == 0) break;
       anything_emitted = 1;
       tallies[ii]--; //emit
       total += power * ii;
-      permute(total, power * 10, 0 == ii);
+      tried += permute(length + 1, /*0, */total, power * 10, 0 == ii/*, running_total + ii*/);
       tallies[ii]++; //deemit
       total -= power * ii;
     }
   }
 
-  if (!called_with_zero && is_prime(total)) prime_total++;
+  if (!called_with_zero/* && running_total % 3 != 0*/) {
+    tried += 1;
+    permutation_lengths[length]++;
+    if (length > 0 && is_prime(total)) {
+      prime_total++;
+    }
+  }
+
+  return tried;
 }
 
 int get_prime_total () {
   prime_total = 0;
-  permute(0, 1, 1);
-  return prime_total;
+  for (int ii = 0; ii < 20; ii++) permutation_lengths[ii] = 0;
+  int tried = permute(0, /*1, */0, 1, 1/*, 0*/);
+  for (int ii = 0; ii < 20; ii++) printf("%d %d\n", ii, permutation_lengths[ii]);
+  return tried;
 }
 
 void next_tally () {
@@ -1124,15 +1137,35 @@ void print_seq () {
 
 int main () {
   int best_so_far = -1;
+  //int nth_tally = 0;
   int nth_tally = 0;
+  tallies[0] = 1;
+  tallies[1] = 2;
+  tallies[2] = 1;
+  tallies[3] = 1;
+  tallies[4] = 1;
+  tallies[5] = 1;
+  tallies[6] = 1;
+  tallies[7] = 1;
+  tallies[8] = 0;
+  tallies[9] = 1;
+  len = 11;
   while (1) {
-    int total = get_prime_total();
-    if (total > best_so_far) {
-      best_so_far = total;
+    fprintf(stderr, "Getting prime total...\n");
+    int tried = get_prime_total();
+    fprintf(stderr, "Tried %d, got new prime total: %d\n", tried, prime_total);
+    if (prime_total > best_so_far) {
+      best_so_far = prime_total;
       print_seq();
-      printf(": %d : %d\n", nth_tally, total);
+      printf(": %d : %d\n", nth_tally, prime_total);
+    } else {
+      print_seq();
+      printf("\n");
     }
+    break;
+    fprintf(stderr, "Sourcing new tally...\n");
     next_tally();
+    fprintf(stderr, "Sourced new tally.\n");
     nth_tally++;
   }
 }
