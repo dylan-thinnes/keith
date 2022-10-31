@@ -1068,24 +1068,23 @@ long int estimate_permutations (long int dedupe_count, int digits_so_far, int st
   return total;
 }
 
-int permute (int length, /*int is_first, */int total, int power, int called_with_zero/*, int running_total*/) {
+int permute (int length, int is_first, int total, int power, int called_with_zero, int running_total) {
   int tried = 0;
   int anything_emitted = 0;
 
   for (int ii = 9; ii >= 0; ii--) {
-    //if (tallies[ii] && (!is_first || ii != 0 && ii != 2 && ii != 5)) {
-    if (tallies[ii]) {
+    if (tallies[ii] && (!is_first || ii != 0 && ii != 2 && ii != 5)) {
       if (anything_emitted == 0 && ii == 0) break;
       anything_emitted = 1;
       tallies[ii]--; //emit
       total += power * ii;
-      tried += permute(length + 1, /*0, */total, power * 10, 0 == ii/*, running_total + ii*/);
+      tried += permute(length + 1, 0, total, power * 10, 0 == ii, running_total + ii);
       tallies[ii]++; //deemit
       total -= power * ii;
     }
   }
 
-  if (!called_with_zero/* && running_total % 3 != 0*/) {
+  if (!called_with_zero && running_total % 3 != 0) {
     tried += 1;
     permutation_lengths[length]++;
     if (length > 0 && is_prime(total)) {
@@ -1099,7 +1098,7 @@ int permute (int length, /*int is_first, */int total, int power, int called_with
 int get_prime_total () {
   prime_total = 0;
   for (int ii = 0; ii < 20; ii++) permutation_lengths[ii] = 0;
-  int tried = permute(0, /*1, */0, 1, 1/*, 0*/);
+  int tried = permute(0, 1, 0, 1, 1, 0);
   for (int ii = 0; ii < 20; ii++) printf("%d %d\n", ii, permutation_lengths[ii]);
   return tried;
 }
