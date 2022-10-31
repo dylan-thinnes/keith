@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
 
 int primes[10000] =
  {      2,     3,      5,      7,     11,     13,     17,     19,     23,     29
@@ -1005,18 +1006,78 @@ int primes[10000] =
  , 104677,104681, 104683, 104693, 104701, 104707, 104711, 104717, 104723, 104729
  };
 
-// Binary search for prime numbers
-// Limits us to numbers under primes[8192] but oh well.
-int is_prime (int n) {
-  if (n <= 1) return 0;
-  int bound = floor(sqrt((double) n));
-  int ii = 0;
-  while (primes[ii] <= bound) {
-    if (n % primes[ii] == 0) return 0;
-    ii++;
-  }
-  return 1;
+typedef uint64_t u64;
+typedef __uint128_t u128;
+typedef int bool;
+int true = 1;
+int false = 0;
+
+u64 binpower(u64 base, u64 e, u64 mod) {
+    u64 result = 1;
+    base %= mod;
+    while (e) {
+        if (e & 1)
+            result = (u128)result * base % mod;
+        base = (u128)base * base % mod;
+        e >>= 1;
+    }
+    return result;
 }
+
+bool check_composite(u64 n, u64 a, u64 d, int s) {
+    u64 x = binpower(a, d, n);
+    if (x == 1 || x == n - 1)
+        return false;
+    for (int r = 1; r < s; r++) {
+        x = (u128)x * x % n;
+        if (x == n - 1)
+            return false;
+    }
+    return true;
+};
+
+bool MillerRabin(u64 n) { // returns true if n is prime, else returns false.
+    if (n < 2)
+        return false;
+
+    int r = 0;
+    u64 d = n - 1;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        r++;
+    }
+
+    int bases[12] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37};
+    for (int ii = 0; ii < 12; ii++) {
+        int a = bases[ii];
+        if (n == a)
+            return true;
+        if (check_composite(n, a, d, r))
+            return false;
+    }
+    return true;
+}
+
+int is_prime (int n) {
+  for (int ii = 0; ii < 6; ii++) {
+    if (n % primes[ii] == 0) return 0;
+  }
+
+  return MillerRabin(n);
+}
+
+//// Binary search for prime numbers
+//// Limits us to numbers under primes[8192] but oh well.
+//int is_prime (int n) {
+//  if (n <= 1) return 0;
+//  int bound = floor(sqrt((double) n));
+//  int ii = 0;
+//  while (primes[ii] <= bound) {
+//    if (n % primes[ii] == 0) return 0;
+//    ii++;
+//  }
+//  return 1;
+//}
 
 int len = 1;
 int tallies[10] = {0,1,0,0,0,0,0,0,0,0};
