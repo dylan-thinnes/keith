@@ -1022,6 +1022,52 @@ int tallies[10] = {0,1,0,0,0,0,0,0,0,0};
 int prime_total = 0;
 int permutation_lengths[20];
 
+long int hardcoded[21] =
+      { 1
+      , 1
+      , 2
+      , 6
+      , 24
+      , 120
+      , 720
+      , 5040
+      , 40320
+      , 362880
+      , 3628800
+      , 39916800
+      , 479001600
+      , 6227020800
+      , 87178291200
+      , 1307674368000
+      , 20922789888000
+      , 355687428096000
+      , 6402373705728000
+      , 121645100408832000
+      , 2432902008176640000
+      };
+
+long int factorial (int n) {
+  return hardcoded[n];
+}
+
+int estimates_made = 0;
+long int estimate_permutations (long int dedupe_count, int digits_so_far, int start_idx) {
+  long int total = 0;
+  if (start_idx == 10) {
+    total = factorial(digits_so_far) / dedupe_count;
+    //printf("Running total: %ld\n", total);
+    estimates_made += 1;
+    return total;
+  }
+  total += estimate_permutations(dedupe_count, digits_so_far, start_idx + 1);
+  for (int ii = 1; ii <= tallies[start_idx]; ii++) {
+    dedupe_count *= ii; // incrementally calculate factorial
+    digits_so_far += 1;
+    total += estimate_permutations(dedupe_count, digits_so_far, start_idx + 1);
+  }
+  return total;
+}
+
 int permute (int length, /*int is_first, */int total, int power, int called_with_zero/*, int running_total*/) {
   int tried = 0;
   int anything_emitted = 0;
@@ -1149,23 +1195,45 @@ int main () {
   tallies[7] = 1;
   tallies[8] = 0;
   tallies[9] = 1;
-  len = 11;
-  while (1) {
-    fprintf(stderr, "Getting prime total...\n");
-    int tried = get_prime_total();
-    fprintf(stderr, "Tried %d, got new prime total: %d\n", tried, prime_total);
-    if (prime_total > best_so_far) {
-      best_so_far = prime_total;
-      print_seq();
-      printf(": %d : %d\n", nth_tally, prime_total);
+  len = 10;
+
+  int skips_made = 0;
+  int tries_skipped = 0;
+  int total_tried = 0;
+  int ii = 100;
+  while (ii--) {
+    estimates_made = 0;
+    long int estimated_perms = estimate_permutations(1, 0, 0);
+    printf("permutation estimate: %ld %d\n", estimated_perms, estimates_made);
+
+    if (estimated_perms >= best_so_far) {
+      fprintf(stdout, "Getting prime total...\n");
+      int tried = get_prime_total();
+      total_tried += tried;
+      fprintf(stdout, "Tried %d, got new prime total: %d\n", tried, prime_total);
+      if (prime_total > best_so_far) {
+        best_so_far = prime_total;
+        printf("Improvement found!\n");
+        print_seq();
+        printf(": %d : %d\n", nth_tally, prime_total);
+      } else {
+        print_seq();
+        printf("\n");
+      }
     } else {
-      print_seq();
-      printf("\n");
+      skips_made++;
+      tries_skipped += estimated_perms;
+      printf("Skipping, permutation estimate too low.");
     }
-    break;
-    fprintf(stderr, "Sourcing new tally...\n");
+    //break;
+
+    fprintf(stdout, "Sourcing new tally...\n");
     next_tally();
-    fprintf(stderr, "Sourced new tally.\n");
+    fprintf(stdout, "Sourced new tally.\n");
     nth_tally++;
   }
+
+  printf("Skips made: %d\n", skips_made);
+  printf("Tries skipped: %d\n", tries_skipped);
+  printf("Total tried: %d\n", total_tried);
 }
