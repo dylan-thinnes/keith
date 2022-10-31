@@ -1072,8 +1072,12 @@ int permute (int length, int is_first, int total, int power, int called_with_zer
   int tried = 0;
   int anything_emitted = 0;
 
-  for (int ii = 9; ii >= 0; ii--) {
-    if (tallies[ii] && (!is_first || ii != 0 && ii != 2 && ii != 5)) {
+  int tally_decrement = 1;
+  if (is_first) tally_decrement = 2;
+
+  for (int ii = 9; ii >= 0; ii -= tally_decrement) {
+    if (is_first && ii == 5) continue;
+    if (tallies[ii]) {
       if (anything_emitted == 0 && ii == 0) break;
       anything_emitted = 1;
       tallies[ii]--; //emit
