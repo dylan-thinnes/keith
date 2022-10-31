@@ -1005,8 +1005,7 @@ int primes[10000] =
  , 104677,104681, 104683, 104693, 104701, 104707, 104711, 104717, 104723, 104729
  };
 
-// Binary search for prime numbers
-// Limits us to numbers under primes[8192] but oh well.
+// Simple sieve for prime numbers, bounded at 104729 ^ 2
 int is_prime (int n) {
   if (n <= 1) return 0;
   int bound = floor(sqrt((double) n));
