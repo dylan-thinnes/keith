@@ -1201,8 +1201,8 @@ int main () {
   len = 10;
 
   int skips_made = 0;
-  int tries_skipped = 0;
   int total_tried = 0;
+  int total_skippable = 0;
   int ii = 100;
   while (ii--) {
     estimates_made = 0;
@@ -1213,6 +1213,7 @@ int main () {
       fprintf(stdout, "Getting prime total...\n");
       int tried = get_prime_total();
       total_tried += tried;
+      if (tried < best_so_far) total_skippable += tried;
       fprintf(stdout, "Tried %d, got new prime total: %d\n", tried, prime_total);
       if (prime_total > best_so_far) {
         best_so_far = prime_total;
@@ -1225,7 +1226,6 @@ int main () {
       }
     } else {
       skips_made++;
-      tries_skipped += estimated_perms;
       printf("Skipping, permutation estimate too low.");
     }
     //break;
@@ -1237,6 +1237,6 @@ int main () {
   }
 
   printf("Skips made: %d\n", skips_made);
-  printf("Tries skipped: %d\n", tries_skipped);
   printf("Total tried: %d\n", total_tried);
+  printf("Total skippable: %d\n", total_skippable);
 }
