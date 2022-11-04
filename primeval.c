@@ -176,8 +176,11 @@ void* start_primevals_thread (void* inp) {
     //printf("\n");
     int tried = permute(local_tally, &prime_total, 0, 1, 0, 1, 1, 0);
     //printf("Report ");
+    pthread_mutex_lock(&global_tally_mutex);
     print_tally(local_tally);
     printf(" %d %d %d\n", local_idx, tried, prime_total);
+    fflush(stdout);
+    pthread_mutex_unlock(&global_tally_mutex);
   }
 
   return NULL;
