@@ -198,7 +198,8 @@ int main () {
   global_tally[7] = 1;
   global_tally[8] = 0;
   global_tally[9] = 1;
-  len = 10;
+  len = 0;
+  for (int ii = 0; ii < 10; ii++) len += global_tally[ii];
 
   pthread_t threads[NUM_THREADS];
   for (int ii = 0; ii < NUM_THREADS; ii++) {
