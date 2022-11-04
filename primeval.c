@@ -54,10 +54,8 @@ int permute (int tally[10], int* prime_total, int length, int is_first, int tota
   int anything_emitted = 0;
 
   int tally_decrement = 1;
-  //if (is_first) tally_decrement = 2;
-
   for (int ii = 9; ii >= 0; ii -= tally_decrement) {
-    //if (is_first && ii == 5) continue;
+    if (is_first && (ii == 0 || ii == 4 || ii == 6 || ii == 8)) continue;
     if (tally[ii]) {
       if (anything_emitted == 0 && ii == 0) break;
       anything_emitted = 1;
